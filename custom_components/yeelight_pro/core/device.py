@@ -414,9 +414,11 @@ class CoverDevice(XDevice):
             MotorConv('motor', 'cover'),
             PropConv('position', parent='motor', prop='tp'),
             PropConv('current_position', parent='motor', prop='cp'),
+            PropConv('tilt_position', parent='motor', prop='tra'),
+            PropConv('current_tilt_position', parent='motor', prop='cra'),
         )
-        if 'rs' in self.prop_params:
-            self.add_converter(PropBoolConv('reverse', 'switch', prop='rs'))
+        # if 'rs' in self.prop_params:
+        #     self.add_converter(PropBoolConv('reverse', 'switch', prop='rs'))
 
 
 class WifiPanelDevice(RelayDoubleDevice):
