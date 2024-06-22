@@ -414,8 +414,8 @@ class CoverDevice(XDevice):
             MotorConv('motor', 'cover'),
             PropConv('position', parent='motor', prop='tp'),
             PropConv('current_position', parent='motor', prop='cp'),
-            PropConv('tilt_position', parent='motor', prop='tra'),
-            PropConv('current_tilt_position', parent='motor', prop='cra'),
+            IntNormalizationConv(attr='tilt_position', parent='motor', prop='tra', attr_range=(0, 100), prop_range=(180, 90)),
+            IntNormalizationConv(attr='current_tilt_position', parent='motor', prop='cra', attr_range=(0, 100), prop_range=(180, 90)),
         )
         # if 'rs' in self.prop_params:
         #     self.add_converter(PropBoolConv('reverse', 'switch', prop='rs'))

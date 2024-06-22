@@ -84,8 +84,12 @@ class XCoverEntity(XEntity, CoverEntity, RestoreEntity):
 
     async def async_set_cover_position(self, **kwargs):
         if ATTR_POSITION in kwargs:
-            if self.supported_features & CoverEntityFeature.SET_TILT_POSITION and int(kwargs[ATTR_POSITION]) > 0:
-                kwargs[ATTR_TILT_POSITION] = 100
+            if self.supported_features & CoverEntityFeature.SET_TILT_POSITION:
+                if int(kwargs[ATTR_POSITION]) > 0:
+                    kwargs[ATTR_TILT_POSITION] = 100
+                else:
+                    kwargs[ATTR_POSITION] = 0
+                    kwargs[ATTR_TILT_POSITION] = 0
         await self.device_send_props(kwargs)
     
     async def async_open_cover_tilt(self, **kwargs: Any) -> None:
@@ -100,7 +104,6 @@ class XCoverEntity(XEntity, CoverEntity, RestoreEntity):
         if ATTR_TILT_POSITION in kwargs:
             if kwargs[ATTR_TILT_POSITION] != 100:
                 kwargs[ATTR_POSITION] = 0
-            kwargs[ATTR_TILT_POSITION] = 180 - int(kwargs[ATTR_TILT_POSITION] * 90 / 100)
         await self.device_send_props(kwargs)
 
     @property

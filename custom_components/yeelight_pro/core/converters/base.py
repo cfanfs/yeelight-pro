@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from typing import Any, Optional, Union, TYPE_CHECKING
+from typing import Any, Optional, Union, TYPE_CHECKING, Tuple
+import logging
 
 if TYPE_CHECKING:
     from ..device import XDevice
@@ -28,6 +29,7 @@ class Converter:
     def read(self, device: "XDevice", payload: dict):
         if not self.prop:
             return
+        return payload.get(self.prop, None)
 
 
 class BoolConv(Converter):
@@ -187,3 +189,24 @@ class MotorConv(Converter):
 @dataclass
 class SceneConv(Converter):
     node: dict = None
+
+
+@dataclass
+class IntNormalizationConv(PropConv):
+    attr_range: Tuple[int, int] = (0, 100)
+    prop_range: Tuple[int, int] = (0, 100)
+
+    def decode(self, device: "XDevice", payload: dict, value: int):
+        """device prop -> hass attrib & normalize"""
+        super().decode(device, payload, self._normalize(value, self.prop_range, self.attr_range))
+
+    def encode(self, device: "XDevice", payload: dict, value: int):
+        super().encode(device, payload, self._normalize(value, self.attr_range, self.prop_range))
+
+    def _normalize(self, value: int, from_range: Tuple[int, int], to_range: Tuple[int, int]) -> int:
+        # auto fix overflow
+        value = min(max(*from_range), value)
+        value = max(min(*from_range), value)
+        # normalize
+        ret = (value - from_range[0]) / (from_range[1] - from_range[0]) * (to_range[1] - to_range[0]) + to_range[0]
+        return int(ret)
